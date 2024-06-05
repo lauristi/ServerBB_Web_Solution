@@ -82,7 +82,7 @@ pipeline {
                         //sh """
                         //    ${env.DOTNET_ROOT}/dotnet test ${env.PROJECT_NAME} --no-build --verbosity normal 
                         //"""
-                        echo "No tests to apply. Stage ignored""
+                        echo "No tests to apply. Stage ignored"
                     } catch (Exception e) {
                         TratarErro(e)
                     }
