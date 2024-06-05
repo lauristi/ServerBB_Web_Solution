@@ -1,0 +1,218 @@
+﻿@using ServerBB_Web.Service.Interface
+@using ServerBB_Web.Service.Model
+@using Microsoft.AspNetCore.Components.Forms
+@rendermode InteractiveServer
+
+@inject HttpClient _HttpClient
+@inject IJSRuntime _JSRuntime
+@inject IFileDownloadService _FileDownloadService
+@inject IMonthService _MonthService
+
+<script src="javascript/downloadService.js"></script>
+
+<div class="jumbotron jumbotron-fluid">
+    <div class="form-group row" style="margin-top: 50px;">
+      @*   <div class="row">
+            <div class="col-sm-4">
+                <div class="d-flex align-items-center h-100">
+                <select @bind="selectedMonth"
+                            class="form-select" style=" height: 15px);">
+                        @foreach (var month in monthList)
+                        {
+                            <option value="@month.Id">@month.Name</option>
+                        }
+                </select>
+                </div>
+            </div>
+        </div> *@
+        <div class="row" style="margin-top: 25px;">
+            <div class="col-sm-4">
+                <div class="d-flex align-items-center h-100">
+                    <InputFile class="form-control form-control-sm" id="inputFileStatement" type="file" OnChange="HandleStatementUpload"></InputFile>
+                </div>
+            </div>
+            <div class="col-sm-2">
+                <div class="d-flex align-items-center h-100">
+                    <button class="btn btn-primary btn-block w-100" style="line-height:1" @onclick="HandleStatementUploadClick">Enviar Extrato</button>
+                </div>
+            </div>
+        </div>
+        <div class="row" style="margin-top: 25px;">
+            <div class="col-sm-4">
+                <div class="d-flex align-items-center h-100">
+                    <InputFile class="form-control form-control-sm" id="inputFileExpense" type="file" OnChange="HandleExpenseUpload"></InputFile>
+                </div>
+            </div>
+            <div class="col-sm-2">
+                <div class="d-flex align-items-center h-100">
+                    <button class="btn btn-warning btn-block w-100" style="line-height:1" @onclick="HandleExpenseUploadClick">Enviar Despesas</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (ShowMessage)
+{
+    <div class="form-group row" style="margin-top: 50px;">
+        <div class="row">
+            <div class="col-sm-4">
+                <div class="alert @AlertClass " role="alert" style="margin-top: 5px;">
+                    @UploadMessage
+                </div>
+            </div>
+        </div>
+    </div>        
+}
+
+@code {
+
+
+    //Alert
+    private string UploadMessage { get; set; }
+    private string AlertClass { get; set; }
+    private bool ShowMessage { get; set; }
+
+    private IReadOnlyList<IBrowserFile> selectedFilesStatement;
+    private IReadOnlyList<IBrowserFile> selectedFilesExpenses;
+
+    //DropDown Meses
+    private int selectedMonth =1;
+    private List<Month> monthList;
+
+    protected override void OnInitialized()
+    {
+        //carrega a lista de meses
+        monthList = _MonthService.GetMonths();
+    }
+
+    #region "Statement"
+
+    private async Task HandleStatementUpload(InputFileChangeEventArgs e)
+    {
+        //Guarda o arquivo escolhido
+        selectedFilesStatement = e.GetMultipleFiles();
+    }
+
+    private async Task HandleStatementUploadClick()
+    {
+        //Envia o  arquivo para o endpoint
+        if (selectedFilesStatement != null && selectedFilesStatement.Any())
+        {
+            IBrowserFile browserFile = selectedFilesStatement[0];
+            var file = browserFile;
+
+            using (var memoryStream = new MemoryStream())
+            {
+                await file.OpenReadStream().CopyToAsync(memoryStream);
+                memoryStream.Seek(0, SeekOrigin.Begin);
+
+                var content = new MultipartFormDataContent();
+                content.Add(new StreamContent(memoryStream), "file", file.Name);
+
+                var response = await _HttpClient.PostAsync("api/bank/uploadStatement", content);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    SetUploadMessage("Arquivo enviado com sucesso", "alert-success");
+
+                    //------------------------------------------------------------------------------------
+                    //download
+                    //------------------------------------------------------------------------------------
+
+
+                    // Chamada para baixar o arquivo processado
+                    var downloadResponse = await _HttpClient.GetAsync("api/bank/processFile");
+
+                    if (downloadResponse.IsSuccessStatusCode)
+                    {
+                        
+                        var contentDisposition = downloadResponse.Content.Headers.ContentDisposition;
+                        var fileName = contentDisposition.FileName;
+                        var url = downloadResponse.RequestMessage.RequestUri.AbsoluteUri;
+                        var fileBytes = await downloadResponse.Content.ReadAsByteArrayAsync();
+
+                        await _FileDownloadService.DownloadFile(url, fileName);
+
+
+                        // Limpa o conteúdo do input file
+                        await _JSRuntime.InvokeVoidAsync("clearInputFile", "inputFileStatement");
+                        
+                    }
+                    else
+                    {
+
+                        SetUploadMessage("Falha ao processar o arquivo", "alert-danger");
+                    }
+                }
+                else
+                {
+                    SetUploadMessage("Falha ao enviar o arquvio", "alert-danger");
+                }
+            }
+        }
+    }
+
+    #endregion
+
+    #region "Expenses"
+     
+    private async Task HandleExpenseUpload(InputFileChangeEventArgs e)
+    {
+        //Guarda o arquivo escolhido
+        selectedFilesExpenses = e.GetMultipleFiles();
+    }
+
+    private async Task HandleExpenseUploadClick()
+    {
+        //Envia o  arquivo para o endpoint
+        if (selectedFilesExpenses != null && selectedFilesExpenses.Any())
+        {
+            IBrowserFile browserFile = selectedFilesExpenses[0];
+            var file = browserFile;
+            using (var memoryStream = new MemoryStream())
+            {
+                await file.OpenReadStream().CopyToAsync(memoryStream);
+                memoryStream.Seek(0, SeekOrigin.Begin);
+
+                var content = new MultipartFormDataContent();
+                content.Add(new StreamContent(memoryStream), "file", file.Name);
+
+                var response = await _HttpClient.PostAsync("api/bank/uploadExpenses", content);
+                
+                if (response.IsSuccessStatusCode)
+                {
+                    // Limpa o conteúdo do input file
+                    await _JSRuntime.InvokeVoidAsync("clearInputFile", "inputFileExpense");
+
+                    SetUploadMessage("Arquivo enviado com sucesso", "alert-success");
+                }
+                else
+                {
+                    SetUploadMessage("Falha ao enviar o arquvio", "alert-danger");
+                }
+            }
+        }
+    }
+
+    #endregion
+
+    private void SetUploadMessage(string message, string alertClass)
+    {
+        UploadMessage = message;
+        AlertClass = alertClass;
+        ShowMessage = true;
+
+        // Esconde a mensagem após 5 segundos
+        Task.Delay(1000).ContinueWith(_ =>
+        {
+            // O código dentro do InvokeAsync é executado no thread da UI (interface do usuário)
+            InvokeAsync(() =>
+                        {
+                            ShowMessage = false;
+                            StateHasChanged(); // Atualiza p componente para refletir a mudança
+                        });
+        });
+    }
+}
+
