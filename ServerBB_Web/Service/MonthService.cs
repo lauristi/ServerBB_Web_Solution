@@ -9,7 +9,7 @@ namespace ServerBB_Web.Service
         public List<Month> GetMonths()
         {
             return Enumerable.Range(1, 12)
-                .Select(x => new Month { Id = x, Name = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(x).ToUpper()})
+                .Select(x => new Month { Id = x, Name = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(x).ToUpper() })
                 .ToList();
         }
     }

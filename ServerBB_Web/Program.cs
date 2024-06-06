@@ -1,8 +1,8 @@
+using Microsoft.AspNetCore.HttpOverrides;
+using NLog.Extensions.Logging;
 using ServerBB_Web.Components;
 using ServerBB_Web.Service;
 using ServerBB_Web.Service.Interface;
-using Microsoft.AspNetCore.HttpOverrides;
-using NLog.Extensions.Logging;
 using System.Net;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -37,7 +37,6 @@ builder.Services.AddScoped(sp =>
 //Servico de Download
 builder.Services.AddScoped<IFileDownloadService, FileDownloadService>();
 builder.Services.AddSingleton<IMonthService, MonthService>();
-
 
 var app = builder.Build();
 

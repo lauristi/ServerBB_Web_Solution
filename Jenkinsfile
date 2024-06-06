@@ -10,7 +10,7 @@ pipeline {
         PROJECT_PATH_ARCHIVE = 'ServerBB_Web/ServerBB_Web.csproj'
         PUBLISH_PATH = 'ServerBB_Web/bin/Release/net8.0/publish'
         ARTIFACT_PATH = 'ServerBB_Web/Artifact'
-        DEPLOY_PATH = '/var/www/app/ServerClipboardProjects/ServerBB_Web'
+        DEPLOY_PATH = '/var/www/app/ServerProjects/ServerBB_Web'
         DOTNET_ROOT = '/opt/dotnet'
     }
 
