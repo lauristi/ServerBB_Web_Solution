@@ -1,0 +1,17 @@
+﻿@page "/spending"
+@using ServerBB_Web.Service
+@using ServerBB_Web.Service.Model
+@inject SpendingService SpendingService
+
+<h3>Gasto Atual</h3>
+<button @onclick="GetSpending">Gasto Atual</button>
+<span>@(spending != null ? $"R$ {spending.Value}" : string.Empty)</span>
+
+@code {
+    private Spending spending;
+
+    private async Task GetSpending()
+    {
+        spending = await SpendingService.GetSpendingAsync();
+    }
+}

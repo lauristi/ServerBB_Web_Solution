@@ -35,8 +35,11 @@ builder.Services.AddScoped(sp =>
     });
 
 //Servico de Download
-builder.Services.AddScoped<IFileDownloadService, FileDownloadService>();
+//builder.Services.AddScoped<IFileService, FileService>();
+
 builder.Services.AddSingleton<IMonthService, MonthService>();
+builder.Services.AddScoped<IFileService, FileService>();
+builder.Services.AddScoped<SpendingService>();
 
 var app = builder.Build();
 
