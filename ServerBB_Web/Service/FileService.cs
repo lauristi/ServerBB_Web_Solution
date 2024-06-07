@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.JSInterop;
 using ServerBB_Web.Service.Interface;
+using System;
 
 public class FileService : IFileService
 {
@@ -31,17 +32,23 @@ public class FileService : IFileService
 
     public async Task<bool> ProcessFileAsync(string endpoint)
     {
-        var response = await _httpClient.GetAsync(endpoint);
-        if (response.IsSuccessStatusCode)
+        try
         {
-            var contentDisposition = response.Content.Headers.ContentDisposition;
-            var fileName = contentDisposition.FileName;
-            var url = response.RequestMessage.RequestUri.AbsoluteUri;
+            var response = await _httpClient.GetAsync(endpoint);
+            if (response.IsSuccessStatusCode)
+            {
+                var contentDisposition = response.Content.Headers.ContentDisposition;
+                var fileName = contentDisposition.FileName;
+                var url = response.RequestMessage.RequestUri.AbsoluteUri;
 
-            await _jsRuntime.InvokeVoidAsync("downloadFile", url, fileName);
-            return true;
+                await _jsRuntime.InvokeVoidAsync("downloadFile", url, fileName);
+                return true;
+            }
         }
-
+        catch (Exception ex)
+        {
+            throw new InvalidOperationException("Ocorreu um erro ao tentar baixar o arquivo.", ex);
+        }
         return false;
     }
 
@@ -52,6 +59,13 @@ public class FileService : IFileService
 
     public async Task DownloadFile(string url, string fileName)
     {
-        await _jsRuntime.InvokeVoidAsync("downloadService.downloadFile", url, fileName);
+        try
+        {
+            await _jsRuntime.InvokeVoidAsync("downloadService.downloadFile", url, fileName);
+        }
+        catch (Exception ex)
+        {
+            throw new InvalidOperationException("Ocorreu um erro ao tentar baixar o arquivo.", ex);
+        }
     }
 }

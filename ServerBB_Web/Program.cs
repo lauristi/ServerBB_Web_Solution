@@ -1,8 +1,11 @@
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.Localization;
 using NLog.Extensions.Logging;
 using ServerBB_Web.Components;
 using ServerBB_Web.Service;
 using ServerBB_Web.Service.Interface;
+using ServerBB_Web.Service.Refs;
+using System.Globalization;
 using System.Net;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -42,6 +45,22 @@ builder.Services.AddScoped<IFileService, FileService>();
 builder.Services.AddScoped<SpendingService>();
 
 var app = builder.Build();
+
+//Determinando o uso de Pt-br para a App
+var supportedCultures = new[] { new CultureInfo("pt-BR") };
+var localizationOptions = new RequestLocalizationOptions
+{
+    DefaultRequestCulture = new RequestCulture("pt-BR"),
+    SupportedCultures = supportedCultures,
+    SupportedUICultures = supportedCultures
+};
+
+//Garatir que seja usado em todas as threads
+CultureInfo.DefaultThreadCurrentCulture = new CultureInfo("pt-BR");
+CultureInfo.DefaultThreadCurrentUICulture = new CultureInfo("pt-BR");
+
+app.UseRequestLocalization(localizationOptions);
+
 
 //Configuracao de Cabecalho encaminhado para funcionar com proxy reverso... Ngnix
 app.UseForwardedHeaders(new ForwardedHeadersOptions

@@ -13,7 +13,14 @@ namespace ServerBB_Web.Service
 
         public async Task<Spending> GetSpendingAsync()
         {
-            return await _httpClient.GetFromJsonAsync<Spending>("api/bb/spending");
+            try
+            {
+                return await _httpClient.GetFromJsonAsync<Spending>("api/bb/spending");
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException("Impossível interagir com o endpoint", ex);
+            }
         }
     }
 }

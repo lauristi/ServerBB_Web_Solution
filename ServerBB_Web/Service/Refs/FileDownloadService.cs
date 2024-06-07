@@ -1,7 +1,7 @@
 ﻿using Microsoft.JSInterop;
 using ServerBB_Web.Service.Interface;
 
-namespace ServerBB_Web.Service
+namespace ServerBB_Web.Service.Refs
 {
     public class FileDownloadService : IFileDownloadService
     {
