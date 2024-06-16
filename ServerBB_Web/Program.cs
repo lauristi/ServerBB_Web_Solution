@@ -1,3 +1,4 @@
+using Blazored.LocalStorage;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Localization;
 using NLog.Extensions.Logging;
@@ -43,6 +44,13 @@ builder.Services.AddScoped(sp =>
 builder.Services.AddSingleton<IMonthService, MonthService>();
 builder.Services.AddScoped<IFileService, FileService>();
 builder.Services.AddScoped<SpendingService>();
+
+//Local Storage Service
+builder.Services.AddBlazoredLocalStorage();
+
+
+
+
 
 var app = builder.Build();
 

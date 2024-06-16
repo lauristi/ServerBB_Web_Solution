@@ -68,4 +68,27 @@ public class FileService : IFileService
             throw new InvalidOperationException("Ocorreu um erro ao tentar baixar o arquivo.", ex);
         }
     }
+
+    public async Task DownloadFileByteAsync(string fileName, byte[] fileBytes)
+    {
+        try
+        {
+            // Converte os bytes do arquivo para uma string base64
+            string base64String = Convert.ToBase64String(fileBytes);
+
+            // Cria um URI para o download do arquivo
+            var uri = new Uri($"data:application/octet-stream;base64,{base64String}");
+
+            // Inicia o download do arquivo chamando a função JavaScript
+            await _jsRuntime.InvokeVoidAsync("downloadService.downloadFile", uri.AbsoluteUri, fileName);
+        }
+        catch (Exception ex)
+        {
+            throw new InvalidOperationException("Ocorreu um erro ao tentar baixar o arquivo.", ex);
+        }
+
+
+
+    }
+
 }

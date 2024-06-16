@@ -11,5 +11,8 @@ namespace ServerBB_Web.Service.Interface
         Task ClearInputFile(string inputFileId);
 
         Task DownloadFile(string url, string fileName);
+
+        Task DownloadFileByteAsync(string fileName, byte[] fileBytes);
+
     }
 }
