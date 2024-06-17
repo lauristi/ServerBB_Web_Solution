@@ -1,6 +1,8 @@
 ﻿@using ServerBB_Web.Service.Interface
 @using ServerBB_Web.Service.Model
 @using Microsoft.AspNetCore.Components.Forms
+@using System.Text.Json
+@using System.Globalization
 
 @rendermode InteractiveServer
 
@@ -13,18 +15,8 @@
 
 <div class="jumbotron jumbotron-fluid">
     <div class="form-group row" style="margin-top: 50px;">
-        <div class="row" style="margin-top: 25px;">
-            <div class="col-sm-4">
-                <div class="d-flex align-items-center h-100">
-                    <InputFile class="form-control form-control-sm" id="inputFileStatement" type="file" OnChange="HandleStatementUpload"></InputFile>
-                </div>
-            </div>
-            <div class="col-sm-2">
-                <div class="d-flex align-items-center h-100">
-                    <button class="btn btn-primary btn-block w-100" style="line-height:1" @onclick="HandleStatementUploadClick">Enviar Extrato</button>
-                </div>
-            </div>
-        </div>
+
+
         <div class="row" style="margin-top: 25px;">
             <div class="col-sm-4">
                 <div class="d-flex align-items-center h-100">
@@ -37,8 +29,80 @@
                 </div>
             </div>
         </div>
+        @* --------------------------------------------------------------------------------------------------------------------------------------- *@
+
+        <div class="row" style="margin-top: 25px;">
+            <div class="col-sm-4">
+                <div class="d-flex align-items-center h-100">
+                    <InputFile class="form-control form-control-sm" id="inputFileStatement" type="file" OnChange="HandleStatementUpload"></InputFile>
+                </div>
+            </div>
+            <div class="col-sm-2">
+                <div class="d-flex align-items-center h-100">
+                    <button class="btn btn-primary btn-block w-100" style="line-height:1" @onclick="HandleStatementUploadClick">Enviar Extrato</button>
+                </div>
+            </div>
+        </div>
+        @* --------------------------------------------------------------------------------------------------------------------------------------- *@
+        <div class="row g-1">
+            <!-- Usando g-1 para espaçamento pequeno -->
+            @* Mercado *@
+            <div class="col" style="padding-left: 5px; padding-right: 5px;">
+                <div class="card rounded-3" style="width: 18rem; margin-top: 20px;">
+                    <div class="card-body">
+                        <h6 class="card-title">Super Mercado:</h6>
+                        @{
+                            string colorClassSuperMarket = (SuperMarket > 4000) ? "text-danger" : "text-primary";
+                        }
+                        <h6 class="card-subtitle mb-2 @colorClassSuperMarket">@($"R$ {SuperMarket.ToString("N2", CultureInfo.GetCultureInfo("pt-BR"))}")</h6>
+                    </div>
+                </div>
+            </div>
+
+            @* Farmacia *@
+            <div class="col" style="padding-left: 5px; padding-right: 5px;">
+                <div class="card rounded-3" style="width: 18rem; margin-top: 20px;">
+                    <div class="card-body">
+                        <h6 class="card-title">Farmácia:</h6>
+                        @{
+                            string colorClassPharmacy = (Pharmacy > 4000) ? "text-danger" : "text-primary";
+                        }
+                        <h6 class="card-subtitle mb-2 @colorClassPharmacy">@($"R$ {Pharmacy.ToString("N2", CultureInfo.GetCultureInfo("pt-BR"))}")</h6>
+                    </div>
+                </div>
+            </div>
+
+            @* Gasto Extra *@
+            <div class="col" style="padding-left: 5px; padding-right: 5px;">
+                <div class="card rounded-3" style="width: 18rem; margin-top: 20px;">
+                    <div class="card-body">
+                        <h6 class="card-title">Extra:</h6>
+                        @{
+                            string colorClassExtra = (Extra > 4000) ? "text-danger" : "text-primary";
+                        }
+                        <h6 class="card-subtitle mb-2 @colorClassExtra">@($"R$ {Extra.ToString("N2", CultureInfo.GetCultureInfo("pt-BR"))}")</h6>
+                    </div>
+                </div>
+            </div>
+
+            @* Total *@
+            <div class="col" style="padding-left: 5px; padding-right: 5px;">
+                <div class="card rounded-3" style="width: 18rem; margin-top: 20px;">
+                    <div class="card-body">
+                        <h6 class="card-title">Total:</h6>
+                        @{
+                            string colorClassTotal = (Total > 4000) ? "text-danger" : "text-primary";
+                        }
+                        <h6 class="card-subtitle mb-2 @colorClassTotal">@($"R$ {Total.ToString("N2", CultureInfo.GetCultureInfo("pt-BR"))}")</h6>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @* --------------------------------------------------------------------------------------------------------------------------------------- *@
     </div>
 </div>
+
+
 
 @if (ShowMessage)
 {
@@ -54,7 +118,13 @@
 }
 
 @code {
-
+    
+    //Panel
+    private decimal SuperMarket;
+    private decimal Pharmacy;
+    private decimal Extra;
+    private decimal Total;
+    
     //Alert
     private string UploadMessage { get; set; }
     private string AlertClass { get; set; }
@@ -63,14 +133,9 @@
     private IReadOnlyList<IBrowserFile> selectedFilesStatement;
     private IReadOnlyList<IBrowserFile> selectedFilesExpenses;
 
-    //DropDown Meses
-    private int selectedMonth = 1;
-    private List<Month> monthList;
-
     protected override void OnInitialized()
     {
-        //carrega a lista de meses
-        monthList = _MonthService.GetMonths();
+
     }
 
     #region "Statement"
@@ -97,28 +162,49 @@
                 var content = new MultipartFormDataContent();
                 content.Add(new StreamContent(memoryStream), "file", file.Name);
 
-                var response = await _HttpClient.PostAsync("api/bb/uploadStatement", content);
+                var responseUpload = await _HttpClient.PostAsync("api/bb/uploadStatement", content);
 
-                if (response.IsSuccessStatusCode)
+                if (responseUpload.IsSuccessStatusCode)
                 {
                     SetUploadMessage("Arquivo enviado com sucesso", "alert-success");
 
-                    //------------------------------------------------------------------------------------
+                    //=======================================================================================
                     //download
-                    //------------------------------------------------------------------------------------
+                    //=======================================================================================
 
                     // Chamada para baixar o arquivo processado
-                    var downloadResponse = await _HttpClient.GetAsync("api/bb/processFile");
+                    var responseDownload = await _HttpClient.GetAsync("api/bb/multiPartProcessFile2");
 
-                    if (downloadResponse.IsSuccessStatusCode)
+                    if (responseDownload.IsSuccessStatusCode)
                     {
-                        var contentDisposition = downloadResponse.Content.Headers.ContentDisposition;
-                        var fileName = contentDisposition.FileName;
-                        var url = downloadResponse.RequestMessage.RequestUri.AbsoluteUri;
-                        var fileBytes = await downloadResponse.Content.ReadAsByteArrayAsync();
+                       
+                        
+                        MultiPartResponse multiPartResponse = new MultiPartResponse();
+                        RecoveredData recoveredData = new RecoveredData();
 
-                        await _FileService.DownloadFile(url, fileName);
+                        var responseDownloadString = await responseDownload.Content.ReadAsStringAsync();
 
+                        multiPartResponse = JsonSerializer.Deserialize<MultiPartResponse>(responseDownloadString);
+                        recoveredData = JsonSerializer.Deserialize<RecoveredData>(multiPartResponse.JsonContent);
+
+
+                        //Recuperacao do Json
+                        SuperMarket = recoveredData.SuperMarket;
+                        Pharmacy = recoveredData.Pharmacy;
+                        Total = recoveredData.Total;
+
+                        //Recuperacao do Arquivo
+
+                        string fileName = Path.GetFileName(recoveredData.FilePath);
+                        byte[] fileBytes = multiPartResponse.FileContent;
+
+                        // Use o serviço de download para baixar o arquivo
+                        await _FileService.DownloadFileByteAsync(fileName, fileBytes);
+
+                        // Limpa o conteúdo do input file
+                        await _FileService.ClearInputFile("inputFileStatement");
+                       
+                        
                         // Limpa o conteúdo do input file
                         await _FileService.ClearInputFile("inputFileStatement");
                     }
@@ -179,6 +265,8 @@
 
     #endregion
 
+    #region Message Setup
+
     private void SetUploadMessage(string message, string alertClass)
     {
         UploadMessage = message;
@@ -196,4 +284,6 @@
             });
         });
     }
+
+    # endregion
 }

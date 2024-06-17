@@ -7,7 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Components\Shared\MultiPartComponent.old" />
+    <None Remove="Components\Shared\SpendingComponent.old" />
     <None Remove="Jenkinsfile" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Components\Shared\MultiPartComponent.old" />
+    <Content Include="Components\Shared\SpendingComponent.old" />
   </ItemGroup>
  
 
@@ -19,9 +26,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Update="Components\Shared\SpendingComponent.razor">
-      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-    </Content>
     <Content Update="wwwroot\bootstrap.min.css">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
