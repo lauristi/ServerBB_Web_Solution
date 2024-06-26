@@ -16,7 +16,6 @@
 <div class="jumbotron jumbotron-fluid">
     <div class="form-group row" style="margin-top: 50px;">
 
-
         <div class="row" style="margin-top: 25px;">
             <div class="col-sm-4">
                 <div class="d-flex align-items-center h-100">
@@ -29,101 +28,109 @@
                 </div>
             </div>
         </div>
-        @* --------------------------------------------------------------------------------------------------------------------------------------- *@
 
-        <div class="row" style="margin-top: 25px;">
-            <div class="col-sm-4">
-                <div class="d-flex align-items-center h-100">
-                    <InputFile class="form-control form-control-sm" id="inputFileStatement" type="file" OnChange="HandleStatementUpload"></InputFile>
+        
+            <div class="row" style="margin-top: 25px;">
+                <div class="col-sm-4">
+                    <div class="d-flex align-items-center h-100">
+                        <InputFile style="background-color: lightblue;" class="form-control form-control-sm" id="inputFileStatement" type="file" OnChange="HandleStatementUpload"></InputFile>
+                    </div>
+                </div>
+                <div class="col-sm-2">
+                    <div class="d-flex align-items-center h-100">
+                        <button class="btn btn-primary btn-block w-100" style="line-height:1" @onclick="HandleStatementUploadClick">Enviar Extrato</button>
+                    </div>
                 </div>
             </div>
-            <div class="col-sm-2">
-                <div class="d-flex align-items-center h-100">
-                    <button class="btn btn-primary btn-block w-100" style="line-height:1" @onclick="HandleStatementUploadClick">Enviar Extrato</button>
+        
+
+        <!-- SYSTEM MESSAGE -->
+        @if (ShowMessage)
+        {
+            <div class="form-group row" style="margin-top: 50px;">
+                <div class="row">
+                    <div class="col-sm-4">
+                        <div class="alert @AlertClass " role="alert" style="margin-top: 5px;">
+                            @UploadMessage
+                        </div>
+                    </div>
                 </div>
+            </div>
+        }
+
+
+        <!-- CARD BOX -->
+        <div id="div_card" class="container-fluid">
+            <div class="row g-2" style="gap: 15px;">
+
+                <!-- Mercado -->
+                <div class="col-md-6 col-lg-3">
+                    <div class="card rounded-3" style="width: 100%; margin-top: 20px;">
+                        <div class="card-body">
+                            <h6 class="card-title">Super Mercado:</h6>
+                            @{
+                                string colorClassSuperMarket = (SuperMarket > 4000) ? "text-danger" : "text-primary";
+                            }
+                            <h6 class="card-subtitle mb-2 @colorClassSuperMarket">@($"R$ {SuperMarket.ToString("N2", CultureInfo.GetCultureInfo("pt-BR"))}")</h6>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Farmacia -->
+                <div class="col-md-6 col-lg-3">
+                    <div class="card rounded-3" style="width: 100%; margin-top: 20px;">
+                        <div class="card-body">
+                            <h6 class="card-title">Farmácia:</h6>
+                            @{
+                                string colorClassPharmacy = (Pharmacy > 4000) ? "text-danger" : "text-primary";
+                            }
+                            <h6 class="card-subtitle mb-2 @colorClassPharmacy">@($"R$ {Pharmacy.ToString("N2", CultureInfo.GetCultureInfo("pt-BR"))}")</h6>
+                        </div>
+                    </div>
+                </div>
+            </div>
+                <div class="row g-2" style="gap: 15px;">
+
+                <!-- Total Débito -->
+                <div class="col-md-6 col-lg-3">
+                    <div class="card rounded-3" style="width: 100%; margin-top: 20px;">
+                        <div class="card-body">
+                            <h6 class="card-title">Débitos:</h6>
+                            @{
+                                string colorClassExtra = (TotalDebit > 4000) ? "text-danger" : "text-primary";
+                            }
+                            <h6 class="card-subtitle mb-2 @colorClassExtra">@($"R$ {TotalDebit.ToString("N2", CultureInfo.GetCultureInfo("pt-BR"))}")</h6>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Total Crédito -->
+                <div class="col-md-6 col-lg-3">
+                    <div class="card rounded-3" style="width: 100%; margin-top: 20px;">
+                        <div class="card-body">
+                            <h6 class="card-title">Créditos:</h6>
+                            <h6 class="card-subtitle mb-2">@($"R$ {TotalCredit.ToString("N2", CultureInfo.GetCultureInfo("pt-BR"))}")</h6>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
-        @* --------------------------------------------------------------------------------------------------------------------------------------- *@
-        <div class="row g-1">
-            <!-- Usando g-1 para espaçamento pequeno -->
-            @* Mercado *@
-            <div class="col" style="padding-left: 5px; padding-right: 5px;">
-                <div class="card rounded-3" style="width: 18rem; margin-top: 20px;">
-                    <div class="card-body">
-                        <h6 class="card-title">Super Mercado:</h6>
-                        @{
-                            string colorClassSuperMarket = (SuperMarket > 4000) ? "text-danger" : "text-primary";
-                        }
-                        <h6 class="card-subtitle mb-2 @colorClassSuperMarket">@($"R$ {SuperMarket.ToString("N2", CultureInfo.GetCultureInfo("pt-BR"))}")</h6>
-                    </div>
-                </div>
-            </div>
-
-            @* Farmacia *@
-            <div class="col" style="padding-left: 5px; padding-right: 5px;">
-                <div class="card rounded-3" style="width: 18rem; margin-top: 20px;">
-                    <div class="card-body">
-                        <h6 class="card-title">Farmácia:</h6>
-                        @{
-                            string colorClassPharmacy = (Pharmacy > 4000) ? "text-danger" : "text-primary";
-                        }
-                        <h6 class="card-subtitle mb-2 @colorClassPharmacy">@($"R$ {Pharmacy.ToString("N2", CultureInfo.GetCultureInfo("pt-BR"))}")</h6>
-                    </div>
-                </div>
-            </div>
-
-            @* Gasto Extra *@
-            <div class="col" style="padding-left: 5px; padding-right: 5px;">
-                <div class="card rounded-3" style="width: 18rem; margin-top: 20px;">
-                    <div class="card-body">
-                        <h6 class="card-title">Extra:</h6>
-                        @{
-                            string colorClassExtra = (Extra > 4000) ? "text-danger" : "text-primary";
-                        }
-                        <h6 class="card-subtitle mb-2 @colorClassExtra">@($"R$ {Extra.ToString("N2", CultureInfo.GetCultureInfo("pt-BR"))}")</h6>
-                    </div>
-                </div>
-            </div>
-
-            @* Total *@
-            <div class="col" style="padding-left: 5px; padding-right: 5px;">
-                <div class="card rounded-3" style="width: 18rem; margin-top: 20px;">
-                    <div class="card-body">
-                        <h6 class="card-title">Total:</h6>
-                        @{
-                            string colorClassTotal = (Total > 4000) ? "text-danger" : "text-primary";
-                        }
-                        <h6 class="card-subtitle mb-2 @colorClassTotal">@($"R$ {Total.ToString("N2", CultureInfo.GetCultureInfo("pt-BR"))}")</h6>
-                    </div>
-                </div>
-            </div>
-        </div>
-        @* --------------------------------------------------------------------------------------------------------------------------------------- *@
     </div>
 </div>
 
 
 
-@if (ShowMessage)
-{
-    <div class="form-group row" style="margin-top: 50px;">
-        <div class="row">
-            <div class="col-sm-4">
-                <div class="alert @AlertClass " role="alert" style="margin-top: 5px;">
-                    @UploadMessage
-                </div>
-            </div>
-        </div>
-    </div>
-}
+
+
 
 @code {
     
     //Panel
     private decimal SuperMarket;
     private decimal Pharmacy;
-    private decimal Extra;
-    private decimal Total;
+    private decimal TotalDebit;
+    private decimal TotalCredit;
     
     //Alert
     private string UploadMessage { get; set; }
@@ -148,7 +155,10 @@
 
     private async Task HandleStatementUploadClick()
     {
-        //Envia o arquivo para o endpoint
+        //=======================================================================================
+        //01- UPLOAD DO EXTRATO
+        //=======================================================================================
+
         if (selectedFilesStatement != null && selectedFilesStatement.Any())
         {
             IBrowserFile browserFile = selectedFilesStatement[0];
@@ -169,33 +179,31 @@
                     SetUploadMessage("Arquivo enviado com sucesso", "alert-success");
 
                     //=======================================================================================
-                    //download
+                    //02- DOWNLOAD
                     //=======================================================================================
 
                     // Chamada para baixar o arquivo processado
-                    var responseDownload = await _HttpClient.GetAsync("api/bb/multiPartProcessFile2");
+                    var responseDownload = await _HttpClient.GetAsync("api/bb/multiPartProcessFile");
 
                     if (responseDownload.IsSuccessStatusCode)
                     {
-                       
                         
                         MultiPartResponse multiPartResponse = new MultiPartResponse();
-                        RecoveredData recoveredData = new RecoveredData();
 
-                        var responseDownloadString = await responseDownload.Content.ReadAsStringAsync();
+                        var response = await responseDownload.Content.ReadAsStringAsync();
 
-                        multiPartResponse = JsonSerializer.Deserialize<MultiPartResponse>(responseDownloadString);
-                        recoveredData = JsonSerializer.Deserialize<RecoveredData>(multiPartResponse.JsonContent);
-
+                        multiPartResponse = JsonSerializer.Deserialize<MultiPartResponse>(response);
+                                      
 
                         //Recuperacao do Json
-                        SuperMarket = recoveredData.SuperMarket;
-                        Pharmacy = recoveredData.Pharmacy;
-                        Total = recoveredData.Total;
+                        SuperMarket = multiPartResponse.SuperMarket;
+                        Pharmacy = multiPartResponse.Pharmacy;
+                        TotalDebit = multiPartResponse.TotalDebit;
+                        TotalCredit = multiPartResponse.TotalCredit;
 
                         //Recuperacao do Arquivo
 
-                        string fileName = Path.GetFileName(recoveredData.FilePath);
+                        string fileName = multiPartResponse.FileName;
                         byte[] fileBytes = multiPartResponse.FileContent;
 
                         // Use o serviço de download para baixar o arquivo

@@ -2,7 +2,12 @@
 {
     public class MultiPartResponse
     {
-        public string JsonContent { get; set; }
+        public decimal SuperMarket { get; set; }
+        public decimal Pharmacy { get; set; }
+        public decimal Extra { get; set; }
+        public decimal TotalDebit { get; set; }
+        public decimal TotalCredit { get; set; }
+        public string FileName { get; set; }
         public byte[] FileContent { get; set; }
     }
 }

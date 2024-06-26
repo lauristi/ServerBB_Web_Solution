@@ -13,6 +13,5 @@ namespace ServerBB_Web.Service.Interface
         Task DownloadFile(string url, string fileName);
 
         Task DownloadFileByteAsync(string fileName, byte[] fileBytes);
-
     }
 }

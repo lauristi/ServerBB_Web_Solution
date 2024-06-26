@@ -48,10 +48,6 @@ builder.Services.AddScoped<SpendingService>();
 //Local Storage Service
 builder.Services.AddBlazoredLocalStorage();
 
-
-
-
-
 var app = builder.Build();
 
 //Determinando o uso de Pt-br para a App
@@ -68,7 +64,6 @@ CultureInfo.DefaultThreadCurrentCulture = new CultureInfo("pt-BR");
 CultureInfo.DefaultThreadCurrentUICulture = new CultureInfo("pt-BR");
 
 app.UseRequestLocalization(localizationOptions);
-
 
 //Configuracao de Cabecalho encaminhado para funcionar com proxy reverso... Ngnix
 app.UseForwardedHeaders(new ForwardedHeadersOptions

@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.JSInterop;
 using ServerBB_Web.Service.Interface;
-using System;
 
 public class FileService : IFileService
 {
@@ -86,9 +85,5 @@ public class FileService : IFileService
         {
             throw new InvalidOperationException("Ocorreu um erro ao tentar baixar o arquivo.", ex);
         }
-
-
-
     }
-
 }
