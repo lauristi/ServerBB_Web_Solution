@@ -14,13 +14,23 @@ var builder = WebApplication.CreateBuilder(args);
 // Adicionando o Nlog ao pipeline
 builder.Logging.AddNLog();
 
+// A porta 5023 é para a aplicação Blazor Server (ServerBB_Web)
+// A porta 5020 é para a Web API (Server_API)
+
+var configuration = builder.Configuration;
+
+var apiBaseAddress = configuration["ConnectionSettings:ApiBaseAddress"];
+var bindAddress = configuration["ConnectionSettings:BindAddress"];
+var bindPort = int.Parse(configuration["ConnectionSettings:BindPort"] ?? "5023");
+
 // Configure o Kestrel para ouvir em todas as interfaces de rede na porta 5020
 // Adiciona o middleware UseStaticWebAssets para servir arquivos estáticos, incluindo CSS, em produção
+
 if (!builder.Environment.IsDevelopment())
 {
     builder.WebHost.ConfigureKestrel(options =>
     {
-        options.Listen(IPAddress.Parse("192.168.0.156"), 5023);
+        options.Listen(IPAddress.Parse(bindAddress), bindPort);
     });
 
     builder.WebHost.UseStaticWebAssets();
@@ -35,7 +45,7 @@ builder.Services.AddRazorComponents()
 builder.Services.AddScoped(sp =>
     new HttpClient
     {
-        BaseAddress = new Uri("http://192.168.0.156:5020")
+        BaseAddress = new Uri(apiBaseAddress)
     });
 
 //Servico de Download
