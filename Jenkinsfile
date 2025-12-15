@@ -2,6 +2,7 @@ pipeline {
     agent any
 
     environment {
+        ASPNETCORE_ENVIRONMENT = 'Production' // <<< IMPORTANTE
         LOG_FILE = "pipeline.log"
         GIT_REPO = 'github.com/lauristi/ServerBB_Web_Solution.git'
         BRANCH = 'master'
