@@ -35,12 +35,23 @@ var bindPort =
 // ⚠️ IMPORTANTE:
 // - Em Development: NÃO forçamos porta (VS / launchSettings controlam)
 // - Em Production: usamos BindPort do appsettings
+
+
+builder.WebHost.ConfigureKestrel(options =>
+{
+    // ALTERAÇÃO: escuta em todas as interfaces (produção e local)
+    // Evita erro de IP inválido em Linux/systemd
+    options.ListenAnyIP(bindPort);
+});
+
+
 if (!builder.Environment.IsDevelopment())
 {
-    builder.WebHost.ConfigureKestrel(options =>
-    {
-        options.ListenAnyIP(bindPort); // Frontend
-    });
+    //trecho antigo
+    //builder.WebHost.ConfigureKestrel(options =>
+    //{
+    //    options.ListenAnyIP(bindPort); // Frontend
+    //});
 
     // Garante arquivos estáticos após publish
     builder.WebHost.UseStaticWebAssets();
