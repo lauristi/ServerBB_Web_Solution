@@ -28,7 +28,7 @@ pipeline {
         stage('01- Checkout') {
             steps {
                 script {
-                    withCredentials([string(credentialsId: 'github-fine-token-UserPass', variable: 'GITHUB_TOKEN')]) {
+                    withCredentials([string(credentialsId: 'github-fine-token-Secret', variable: 'GITHUB_TOKEN')]) {
                         sh """
                             git clone --depth 1 https://${GITHUB_TOKEN}@${GIT_REPO}
                             cd ${env.SOLUTION_PATH}
