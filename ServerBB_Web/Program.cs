@@ -33,14 +33,15 @@ var bindPort =
 // ✔️ Development: Visual Studio / launchSettings controlam
 // ✔️ Production: Kestrel escuta na porta configurada
 
+builder.WebHost.ConfigureKestrel(options =>
+{
+    // escuta em todas as interfaces
+    options.ListenAnyIP(bindPort);
+});
+
+
 if (!builder.Environment.IsDevelopment())
 {
-    builder.WebHost.ConfigureKestrel(options =>
-    {
-        // escuta em todas as interfaces
-        options.ListenAnyIP(bindPort); 
-    });
-
     // Necessário após publish
     builder.WebHost.UseStaticWebAssets();
 }
