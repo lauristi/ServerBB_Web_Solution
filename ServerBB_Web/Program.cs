@@ -10,60 +10,47 @@ using System.Globalization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// =========================
+
 // Logging (NLog)
-// =========================
+// Configuration
+
 builder.Logging.AddNLog();
 
-// =========================
-// Configuration
-// =========================
 var configuration = builder.Configuration;
 
 // URL da API externa (Server_API - porta 5020)
 var apiBaseAddress =
     configuration["ConnectionSettings:ApiBaseAddress"]
-    ?? throw new InvalidOperationException("ConnectionSettings:ApiBaseAddress não configurado");
+    ?? throw new InvalidOperationException(
+        "ConnectionSettings:ApiBaseAddress não configurado");
 
 // Porta do Frontend (ServerBB_Web)
 var bindPort =
     int.Parse(configuration["ConnectionSettings:BindPort"] ?? "5023");
 
-// =========================
+
 // Kestrel
-// =========================
-// ⚠️ IMPORTANTE:
-// - Em Development: NÃO forçamos porta (VS / launchSettings controlam)
-// - Em Production: usamos BindPort do appsettings
-
-
-builder.WebHost.ConfigureKestrel(options =>
-{
-    // ALTERAÇÃO: escuta em todas as interfaces (produção e local)
-    // Evita erro de IP inválido em Linux/systemd
-    options.ListenAnyIP(bindPort);
-});
-
+// ✔️ Development: Visual Studio / launchSettings controlam
+// ✔️ Production: Kestrel escuta na porta configurada
 
 if (!builder.Environment.IsDevelopment())
 {
-    //trecho antigo
-    //builder.WebHost.ConfigureKestrel(options =>
-    //{
-    //    options.ListenAnyIP(bindPort); // Frontend
-    //});
+    builder.WebHost.ConfigureKestrel(options =>
+    {
+        // escuta em todas as interfaces
+        options.ListenAnyIP(bindPort); 
+    });
 
-    // Garante arquivos estáticos após publish
+    // Necessário após publish
     builder.WebHost.UseStaticWebAssets();
 }
 
-// =========================
+
 // Services
-// =========================
 builder.Services.AddRazorComponents()
                 .AddInteractiveServerComponents();
 
-// HttpClient para acessar o backend (Server_API - 5020)
+// HttpClient para acessar o backend (Server_API)
 builder.Services.AddScoped(_ =>
     new HttpClient
     {
@@ -77,9 +64,8 @@ builder.Services.AddBlazoredLocalStorage();
 
 var app = builder.Build();
 
-// =========================
+
 // Localization (pt-BR)
-// =========================
 var supportedCultures = new[] { new CultureInfo("pt-BR") };
 
 var localizationOptions = new RequestLocalizationOptions
@@ -94,9 +80,8 @@ CultureInfo.DefaultThreadCurrentUICulture = supportedCultures[0];
 
 app.UseRequestLocalization(localizationOptions);
 
-// =========================
+
 // Proxy / Nginx
-// =========================
 app.UseForwardedHeaders(new ForwardedHeadersOptions
 {
     ForwardedHeaders =
@@ -104,21 +89,24 @@ app.UseForwardedHeaders(new ForwardedHeadersOptions
         ForwardedHeaders.XForwardedProto
 });
 
-// =========================
+
 // Static files
-// =========================
 app.UseStaticFiles();
 
-// =========================
+
 // HTTP pipeline
-// =========================
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
     app.UseHsts();
 }
 
+// IMPORTANTE
+// Se você NÃO usa HTTPS no Kestrel diretamente,
+// este middleware pode causar problema em produção atrás do Nginx
+// Se der erro, COMENTE esta linha
 app.UseHttpsRedirection();
+
 app.UseAntiforgery();
 
 app.MapRazorComponents<App>()
